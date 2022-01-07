@@ -1,0 +1,7 @@
+Homily sends senor data to the Home Automation hub. 
+Units can be scattered over the house and will publish
+payloads to the hub for viewing in a dashbooard. 
+Protect the house from fire and flooding. Each unit also
+has a buzzer to sound an alarm.
+
+rev001: Send dummy signal to hub over MQTT. 
