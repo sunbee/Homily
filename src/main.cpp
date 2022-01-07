@@ -7,9 +7,59 @@
 const char* SSID = WIFI_SSID;
 const char* PASS = WIFI_PASS;
 const char* MQTTIP = MQTT_IP;
+unsigned long tic = millis();
 
 WiFiClient HTTPClient ;
 PubSubClient MQTTClient(HTTPClient);
+
+void onmessage(char* topic, byte* payload, unsigned int length) {
+  /*
+  Handle a new message published to the subscribed topic on the 
+  MQTT broker and show in the OLED display.
+  This is the heart of the subscriber, making it so the nodemcu
+  can act upon information, say, to operate a solenoid valve when
+  the mositure sensor indicates dry soil.
+  */
+  Serial.print("Got a message in topic ");
+  Serial.println(topic);
+  Serial.print("Received data: ");
+  char message2display[length];
+  for (unsigned int i = 0; i < length; i++) {
+    Serial.print(char(payload[i]));
+    message2display[i] = payload[i];
+  }
+  Serial.println();
+}
+
+void reconnect() {
+  /*
+  Connect to the MQTT broker in order to publish a message
+  or listen in on a topic of interest. 
+  The 'connect()' method requires client credentials. 
+  When the MQTT broker is not setup for authentication, 
+  we have successfully connected to the MQTT broker 
+  passing string literals for args 'id' and 'user' and NULL for 'pass'.
+  Having connected successully, proceed to publish or listen.
+  Example: "BHRIGU", "fire_up_your_neurons", NULL
+  */
+  while (!MQTTClient.connected()) {
+    if (MQTTClient.connect("nodemcu", MQTT_USERID, MQTT_PASSWD)) {
+      Serial.println("Uh-Kay!");
+      MQTTClient.subscribe("/Test"); // SUBSCRIBE TO TOPIC
+    } else {
+      Serial.print("Retrying ");
+      Serial.println(MQTTIP);
+      delay(699);
+    }
+  }
+}
+
+void publish_message() {
+  String msg_payload = "Namaste from ESP";
+  char char_buffer[128];
+  msg_payload.toCharArray(char_buffer, 128);
+  MQTTClient.publish("Test", char_buffer);
+}
 
 int LED = 2;
 
@@ -20,7 +70,7 @@ void setup() {
     // Stabilize the serial bus
   }
 
-  // Connect to WiFi:
+  // Connect tounsigned long tic = millis(); WiFi:
   WiFi.mode(WIFI_OFF);
   delay(1500);
   WiFi.mode(WIFI_STA);
@@ -30,8 +80,13 @@ void setup() {
     delay(600);
     Serial.print(".");
   }
-  Serial.println("Connected: ");
+  Serial.println(".");
+  Serial.print("Connected: ");
   Serial.println(SSID);
+
+  // MQTT:
+  MQTTClient.setServer(MQTTIP, 1883);
+  MQTTClient.setCallback(onmessage);
 
   pinMode(LED, OUTPUT);
 
@@ -39,8 +94,25 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  digitalWrite(LED, HIGH);
-  delay(666);
-  digitalWrite(LED, LOW);
-  delay(666);
+  unsigned long toc = millis();
+  /*
+    Lights! Camera! Action!
+    Here is where the action is for publisher and subscriber.
+    Note the use of millis to scheduling the publication of
+    sensor readings to the MQTT broker in a non-blocking way. 
+    The use of 'delay()' would block the listener, 
+    causing events to be missed.  
+  */
+  digitalWrite(LED, LOW);  
+  if (toc - tic > 30000) {
+    tic = toc;
+    if (!MQTTClient.connected()) {
+      Serial.println("Made no MQTT connection.");
+      reconnect();
+    } else {
+      digitalWrite(LED, HIGH);
+      publish_message(); // Publisher action
+    }
+  }
+  MQTTClient.loop(); // Callbacks handled in event loop
 }
