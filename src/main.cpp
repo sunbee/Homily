@@ -4,9 +4,6 @@
 
 #include "SECRETS.h"
 
-const char* SSID = WIFI_SSID;
-const char* PASS = WIFI_PASS;
-const char* MQTTIP = MQTT_IP;
 unsigned long tic = millis();
 
 WiFiClient HTTPClient ;
@@ -45,10 +42,10 @@ void reconnect() {
   while (!MQTTClient.connected()) {
     if (MQTTClient.connect("nodemcu", MQTT_USERID, MQTT_PASSWD)) {
       Serial.println("Uh-Kay!");
-      MQTTClient.subscribe("/Test"); // SUBSCRIBE TO TOPIC
+      MQTTClient.subscribe("Test"); // SUBSCRIBE TO TOPIC
     } else {
       Serial.print("Retrying ");
-      Serial.println(MQTTIP);
+      Serial.println(MQTT_IP);
       delay(699);
     }
   }
@@ -61,7 +58,7 @@ void publish_message() {
   MQTTClient.publish("Test", char_buffer);
 }
 
-int LED = 2;
+int LED = 16;
 
 void setup() {
   // put your setup code here, to run once:
@@ -74,7 +71,7 @@ void setup() {
   WiFi.mode(WIFI_OFF);
   delay(1500);
   WiFi.mode(WIFI_STA);
-  WiFi.begin(SSID, PASS);
+  WiFi.begin(WIFI_SSID, WIFI_PASS);
   Serial.print("Connecting");
   while(WiFi.status() != WL_CONNECTED) {
     delay(600);
@@ -82,10 +79,10 @@ void setup() {
   }
   Serial.println(".");
   Serial.print("Connected: ");
-  Serial.println(SSID);
+  Serial.println(WIFI_SSID);
 
   // MQTT:
-  MQTTClient.setServer(MQTTIP, 1883);
+  MQTTClient.setServer(MQTT_IP, 1883);
   MQTTClient.setCallback(onmessage);
 
   pinMode(LED, OUTPUT);
