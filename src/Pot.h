@@ -10,7 +10,7 @@ class Pot
         Pot();
         int get_pot(int=POT, bool=true);
     private:
-        float _potval;
+        int _potval;
 };
 
 #endif

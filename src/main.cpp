@@ -7,13 +7,13 @@
 
 String name="MCU106";
 
+int LED = 16;
+
 #include "Pot.h"
-#define TIMER_INTERVAL  6000     // 6 seconds
-#define TIMER_MIN       2000     // 2 seconds MIN
-#define TIMER_MAX       180000   // 3 minutes MAX
+unsigned long TIMER_MIN = 2000;     // 2 seconds MIN
+unsigned long TIMER_MAX = 180000;   // 3 minutes MAX
 Pot _pot = Pot();
 int potval;
-int interval;
 
 unsigned long tic = millis();
 
@@ -39,28 +39,6 @@ void onmessage(char* topic, byte* payload, unsigned int length) {
   Serial.println();
 }
 
-void reconnect() {
-  /*
-  Connect to the MQTT broker in order to publish a message
-  or listen in on a topic of interest. 
-  The 'connect()' method requires client credentials. 
-  When the MQTT broker is not setup for authentication, 
-  we have successfully connected to the MQTT broker 
-  passing string literals for args 'id' and 'user' and NULL for 'pass'.
-  Having connected successully, proceed to publish or listen.
-  Example: "BHRIGU", "fire_up_your_neurons", NULL
-  */
-  while (!MQTTClient.connected()) {
-    if (MQTTClient.connect("nodemcu", MQTT_USERID, MQTT_PASSWD)) {
-      Serial.println("Uh-Kay!");
-      MQTTClient.subscribe("Test"); // SUBSCRIBE TO TOPIC
-    } else {
-      Serial.print("Retrying ");
-      Serial.println(MQTT_IP);
-      delay(699);
-    }
-  }
-}
 
 String make_message() {
   // Pot:
@@ -75,14 +53,36 @@ String make_message() {
 }
 
 void publish_message() {
-  String msg_payload =  make_message(); "Namaste from ESP";
+  String msg_payload =  make_message(); // "Namaste from ESP";
+  Serial.print("Payload: ");
   Serial.println(msg_payload);
   char char_buffer[128];
   msg_payload.toCharArray(char_buffer, 128);
   MQTTClient.publish("Test", char_buffer);
 }
 
-int LED = 16;
+void reconnect() {
+  /*
+  Connect to the MQTT broker in order to publish a message
+  or listen in on a topic of interest. 
+  The 'connect()' method requires client credentials. 
+  When the MQTT broker is not setup for authentication, 
+  we have successfully connected to the MQTT broker 
+  passing string literals for args 'id' and 'user' and NULL for 'pass'.
+  Having connected successully, proceed to publish or listen.
+  Example: "BHRIGU", "fire_up_your_neurons", NULL
+  */
+  while (!MQTTClient.connected()) {
+    if (MQTTClient.connect("MCU106", MQTT_USERID, MQTT_PASSWD)) {
+      Serial.println("Uh-Kay!");
+      MQTTClient.subscribe("Test"); // SUBSCRIBE TO TOPIC
+    } else {
+      Serial.print("Retrying ");
+      Serial.println(MQTT_IP);
+      delay(600);
+    }
+  }
+}
 
 void setup() {
   // put your setup code here, to run once:
@@ -91,7 +91,7 @@ void setup() {
     // Stabilize the serial bus
   }
 
-  // Connect tounsigned long tic = millis(); WiFi:
+  // Connect to WiFi:
   WiFi.mode(WIFI_OFF);
   delay(1500);
   WiFi.mode(WIFI_STA);
@@ -110,7 +110,6 @@ void setup() {
   MQTTClient.setCallback(onmessage);
 
   pinMode(LED, OUTPUT);
-
 }
 
 void loop() {
@@ -125,7 +124,6 @@ void loop() {
     causing events to be missed.  
   */
   digitalWrite(LED, LOW);  
-  interval = map(_pot.get_pot(), 0, 1023, TIMER_MIN, TIMER_MAX);
   if ((toc - tic) > 30000) {
     tic = toc;
     if (!MQTTClient.connected()) {
