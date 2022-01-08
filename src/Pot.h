@@ -1,3 +1,6 @@
+/*
+Copyright of Sanjay Bhatikar
+*/
 #ifndef POT_H
 #define POT_H
 
@@ -8,7 +11,7 @@ class Pot
 {
     public:
         Pot();
-        int get_pot(int=POT, bool=true);
+        int get_pot(int=PIN_POT, bool=true);
     private:
         int _potval;
 };

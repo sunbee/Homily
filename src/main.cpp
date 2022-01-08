@@ -15,6 +15,10 @@ unsigned long TIMER_MAX = 180000;   // 3 minutes MAX
 Pot _pot = Pot();
 int potval;
 
+#include "Dallas.h"
+Dallas _dallas = Dallas();
+float cels;
+
 unsigned long tic = millis();
 
 WiFiClient HTTPClient ;
@@ -39,16 +43,20 @@ void onmessage(char* topic, byte* payload, unsigned int length) {
   Serial.println();
 }
 
-
 String make_message() {
   // Pot:
   potval = _pot.get_pot();
   char pot2display[7];
   dtostrf(potval, 4, 0, pot2display);
 
+  // Dallas:
+  cels = _dallas.get_Temp(CELSIUS);
+  char temp2display[7];
+  dtostrf((((cels < -99.99) || (cels > 999.99)) ? -99.99 :  cels), 6, 2, temp2display);
+
   // Pack up!
-  char readout[32];
-  snprintf(readout, 32, "{\"Name\":\"%6s\",\"Pot\":%6s}", name.c_str(), pot2display);
+  char readout[47];
+  snprintf(readout, 47, "{\"Name\":\"%6s\",\"Pot\":%6s,\"TempC\":%6s}", name.c_str(), pot2display, temp2display);
   return readout;
 }
 
@@ -108,6 +116,9 @@ void setup() {
   // MQTT:
   MQTTClient.setServer(MQTT_IP, 1883);
   MQTTClient.setCallback(onmessage);
+
+  // Dallas:
+  _dallas.start();
 
   pinMode(LED, OUTPUT);
 }
