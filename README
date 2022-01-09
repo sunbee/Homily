@@ -6,3 +6,4 @@ has a buzzer to sound an alarm.
 
 rev001: Send dummy signal to hub over MQTT. 
 rev002: Set up framework for sensor integration and add 1 sensor.
+rev003: Add sensors and complete kit-out.
