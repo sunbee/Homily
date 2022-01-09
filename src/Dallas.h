@@ -19,7 +19,7 @@ class Dallas
 {
     public:
         Dallas();
-        void start(int=PIN_DALLAS);
+        void start();
         float get_Temp(enum TemperatureUnit=FAHRENHEIT, bool=true);
         float convertC2F(float c);
         float convertF2C(float f);

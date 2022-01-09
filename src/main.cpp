@@ -98,6 +98,7 @@ void setup() {
   while(!Serial) {
     // Stabilize the serial bus
   }
+  delay(600);
 
   // Connect to WiFi:
   WiFi.mode(WIFI_OFF);

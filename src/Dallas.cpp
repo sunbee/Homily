@@ -8,10 +8,11 @@ Dallas::Dallas() {
 
 }
 
-void Dallas::start(int signal) {
-    this->_wire.begin(signal);
+void Dallas::start() {
     this->_ds18b20.setOneWire(&this->_wire);
     this->_ds18b20.begin();
+    delay(750);
+    this->_ds18b20.requestTemperatures();
 }
 
 float Dallas::get_Temp(enum TemperatureUnit unit, bool live) {
