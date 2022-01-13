@@ -50,7 +50,7 @@ String make_message() {
   dtostrf(potval, 4, 0, pot2display);
 
   // Dallas:
-  cels = _dallas.get_Temp(CELSIUS);
+  cels = _dallas.get_Temp(CELSIUS, true);
   char temp2display[7];
   dtostrf((((cels < -99.99) || (cels > 999.99)) ? -99.99 :  cels), 6, 2, temp2display);
 
