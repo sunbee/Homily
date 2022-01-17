@@ -19,6 +19,10 @@ int potval;
 Dallas _dallas = Dallas();
 float cels;
 
+#include "Gas.h"
+Gas _gas = Gas();
+bool isgas;
+
 unsigned long tic = millis();
 
 WiFiClient HTTPClient ;
@@ -54,9 +58,13 @@ String make_message() {
   char temp2display[7];
   dtostrf((((cels < -99.99) || (cels > 999.99)) ? -99.99 :  cels), 6, 2, temp2display);
 
+  // Gas
+  isgas = _gas.get_isgas();
+  char gas2display[2];
+
   // Pack up!
-  char readout[47];
-  snprintf(readout, 47, "{\"Name\":\"%6s\",\"Pot\":%6s,\"TempC\":%6s}", name.c_str(), pot2display, temp2display);
+  char readout[56];
+  snprintf(readout, 56, "{\"Name\":\"%6s\",\"Pot\":%6s,\"TempC\":%6s,\"isGas\":%1s}", name.c_str(), pot2display, temp2display, gas2display);
   return readout;
 }
 

@@ -11,8 +11,8 @@ class Gas
 {
     public:
         Gas();
-        bool get_isgas(int PINB_GAS, bool=true);
-        int get_gasval(int PINA_GAS, bool=true);
+        bool get_isgas(int=PINB_GAS, bool=true);
+        int get_gasval(int=PINA_GAS, bool=true);
     private:
         bool _isgas;
         int _gasval;
