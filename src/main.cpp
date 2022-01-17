@@ -68,7 +68,7 @@ String make_message() {
   dtostrf((isgas*1.0), 1, 0, gas2display);
 
   // Fire
-  isfire = _flame.get_isflame();
+  isfire = !(_flame.get_isflame());
   char fire2display[2];
   dtostrf((isfire*1.0), 1, 0, fire2display);
 
