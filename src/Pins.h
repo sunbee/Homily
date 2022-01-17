@@ -4,3 +4,4 @@
 #define PINB_GAS        D4
 #define CH_GAS_MCP      TBD
 #define PIN_DALLAS      D3
+#define PIN_BUZZER      D6

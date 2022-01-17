@@ -27,6 +27,9 @@ bool isgas;
 Flame _flame = Flame();
 bool isfire;
 
+#include "Buzzer.h"
+Buzzer _buzzer = Buzzer();
+
 unsigned long tic = millis();
 
 WiFiClient HTTPClient ;
@@ -71,6 +74,10 @@ String make_message() {
   isfire = !(_flame.get_isflame());
   char fire2display[2];
   dtostrf((isfire*1.0), 1, 0, fire2display);
+
+  if (isgas || isfire) {
+    _buzzer.sound_alarm();
+  }
 
   // Pack up!
   char readout[66];
