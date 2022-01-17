@@ -23,6 +23,10 @@ float cels;
 Gas _gas = Gas();
 bool isgas;
 
+#include "Flame.h"
+Flame _flame = Flame();
+bool isfire;
+
 unsigned long tic = millis();
 
 WiFiClient HTTPClient ;
@@ -59,12 +63,18 @@ String make_message() {
   dtostrf((((cels < -99.99) || (cels > 999.99)) ? -99.99 :  cels), 6, 2, temp2display);
 
   // Gas
-  isgas = _gas.get_isgas();
+  isgas = !(_gas.get_isgas()); // MQ-135 LO when air-quality bad
   char gas2display[2];
+  dtostrf((isgas*1.0), 1, 0, gas2display);
+
+  // Fire
+  isfire = _flame.get_isflame();
+  char fire2display[2];
+  dtostrf((isfire*1.0), 1, 0, fire2display);
 
   // Pack up!
-  char readout[56];
-  snprintf(readout, 56, "{\"Name\":\"%6s\",\"Pot\":%6s,\"TempC\":%6s,\"isGas\":%1s}", name.c_str(), pot2display, temp2display, gas2display);
+  char readout[66];
+  snprintf(readout, 66, "{\"Name\":\"%6s\",\"Pot\":%6s,\"TempC\":%6s,\"AirQ\":%1s,\"Fire\":%1s}", name.c_str(), pot2display, temp2display, gas2display, fire2display);
   return readout;
 }
 
