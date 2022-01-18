@@ -146,6 +146,9 @@ void setup() {
   // Dallas:
   _dallas.start();
 
+  // Buzzer
+  _buzzer.sound_alarm();
+
   pinMode(LED, OUTPUT);
 }
 
