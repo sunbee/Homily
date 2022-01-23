@@ -5,3 +5,6 @@
 #define CH_GAS_MCP      TBD
 #define PIN_DALLAS      D3
 #define PIN_BUZZER      D6
+#define PIN_FLOATA      D1      
+#define PIN_FLOATB      D2
+#define PIN_FlOATC      D7
