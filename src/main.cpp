@@ -165,7 +165,7 @@ void loop() {
   */
   digitalWrite(LED, LOW);  
   if ((toc - tic) > 30000) {
-    tic = toc;
+     tic = toc;
     if (!MQTTClient.connected()) {
       Serial.println("Made no MQTT connection.");
       reconnect();
