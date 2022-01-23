@@ -11,6 +11,6 @@ bool Float::get_isflood(bool live) {
     if (live) {
         this->_isflood = digitalRead(this->_pin);
     }
-    return this->_pin;
+    return this->_isflood;
 
 }

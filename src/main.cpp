@@ -5,10 +5,11 @@
 #include "SECRETS.h"
 #include "Pins.h"
 
-String name="MCU106";
+String name="FLLTRA";
 
 int LED = 16;
 
+/*
 #include "Pot.h"
 unsigned long TIMER_MIN = 2000;     // 2 seconds MIN
 unsigned long TIMER_MAX = 180000;   // 3 minutes MAX
@@ -29,6 +30,15 @@ bool isfire;
 
 #include "Buzzer.h"
 Buzzer _buzzer = Buzzer();
+*/
+
+#include "Float.h"
+Float _floodLo = Float(PIN_FLOATA);
+Float _floodMe = Float(PIN_FLOATB);
+Float _floodHi = Float(PIN_FlOATC);
+bool isLevelLo = false;
+bool isLevelMe = false;
+bool isLevelHi = false;
 
 unsigned long tic = millis();
 
@@ -55,12 +65,13 @@ void onmessage(char* topic, byte* payload, unsigned int length) {
 }
 
 String make_message() {
+  /*
   // Pot:
   potval = _pot.get_pot();
   char pot2display[7];
   dtostrf(potval, 4, 0, pot2display);
 
-  // Dallas:
+  // Dallas:isLevelLo
   cels = _dallas.get_Temp(CELSIUS, true);
   char temp2display[7];
   dtostrf((((cels < -99.99) || (cels > 999.99)) ? -99.99 :  cels), 6, 2, temp2display);
@@ -83,6 +94,24 @@ String make_message() {
   char readout[66];
   snprintf(readout, 66, "{\"Name\":\"%6s\",\"Pot\":%6s,\"TempC\":%6s,\"AirQ\":%1s,\"Fire\":%1s}", name.c_str(), pot2display, temp2display, gas2display, fire2display);
   return readout;
+  */
+ // Levels
+ isLevelLo = _floodLo.get_isflood();
+ isLevelMe = _floodMe.get_isflood();
+ isLevelHi = _floodHi.get_isflood();
+
+ char levelLo2display[2];
+ char levelMe2display[2];
+ char levelHi2display[2];
+
+ dtostrf((isLevelLo * 1.0), 1, 0, levelLo2display);
+ dtostrf((isLevelMe * 1.0), 1, 0, levelMe2display);
+ dtostrf((isLevelHi * 1.0), 1, 0, levelHi2display);
+
+ // Pack up!
+ char readout[25]; // 22
+ snprintf(readout, 25, "{\"Lo\":%s,\"Me\":%s,\"Hi\":%s}", levelLo2display, levelMe2display, levelHi2display);
+ return readout;
 }
 
 void publish_message() {
@@ -91,7 +120,7 @@ void publish_message() {
   Serial.println(msg_payload);
   char char_buffer[128];
   msg_payload.toCharArray(char_buffer, 128);
-  MQTTClient.publish("Test", char_buffer);
+  MQTTClient.publish("FLL", char_buffer);
 }
 
 void reconnect() {
@@ -106,9 +135,9 @@ void reconnect() {
   Example: "BHRIGU", "fire_up_your_neurons", NULL
   */
   while (!MQTTClient.connected()) {
-    if (MQTTClient.connect("MCU106", MQTT_USERID, MQTT_PASSWD)) {
+    if (MQTTClient.connect("FLLTRA", MQTT_USERID, MQTT_PASSWD)) {
       Serial.println("Uh-Kay!");
-      MQTTClient.subscribe("Test"); // SUBSCRIBE TO TOPIC
+      MQTTClient.subscribe("FLL"); // SUBSCRIBE TO TOPIC
     } else {
       Serial.print("Retrying ");
       Serial.println(MQTT_IP);
@@ -143,11 +172,13 @@ void setup() {
   MQTTClient.setServer(MQTT_IP, 1883);
   MQTTClient.setCallback(onmessage);
 
+  /*
   // Dallas:
   _dallas.start();
 
   // Buzzer
   _buzzer.sound_alarm();
+  */
 
   pinMode(LED, OUTPUT);
 }
@@ -164,7 +195,7 @@ void loop() {
     causing events to be missed.  
   */
   digitalWrite(LED, LOW);  
-  if ((toc - tic) > 30000) {
+  if ((toc - tic) > 3000) {
      tic = toc;
     if (!MQTTClient.connected()) {
       Serial.println("Made no MQTT connection.");
