@@ -1,9 +1,16 @@
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
 #include <PubSubClient.h>
+#include <time.h>
+#include "TZ.h"
+#include "FS.h"
+#include "LittleFS.h"
+#include <CertStoreBearSSL.h>
 
 #include "SECRETS.h"
 #include "Pins.h"
+
+BearSSL::CertStore certStore;
 
 String name="FLLTRA";
 
@@ -19,8 +26,27 @@ bool isLevelHi = false;
 
 unsigned long tic = millis();
 
-WiFiClient HTTPClient ;
+WiFiClientSecure HTTPClient;
 PubSubClient MQTTClient(HTTPClient);
+
+void setDateTime() {
+  // You can use your own timezone, but the exact time is not used at all.
+  // Only the date is needed for validating the certificates.
+  configTime(TZ_America_Chicago, "pool.ntp.org", "time.nist.gov");
+
+  Serial.print("Waiting for NTP time sync: ");
+  time_t now = time(nullptr);
+  while (now < 8 * 3600 * 2) {
+    delay(100);
+    Serial.print(".");
+    now = time(nullptr);
+  }
+  Serial.println();
+
+  struct tm timeinfo;
+  gmtime_r(&now, &timeinfo);
+  Serial.printf("%s %s", tzname[0], asctime(&timeinfo));
+}
 
 void onmessage(char* topic, byte* payload, unsigned int length) {
   /*
@@ -70,7 +96,7 @@ void publish_message() {
   MQTTClient.publish("FLL", char_buffer);
 }
 
-void reconnect() {
+void reconnect_old() {
   /*
   Connect to the MQTT broker in order to publish a message
   or listen in on a topic of interest. 
@@ -89,6 +115,29 @@ void reconnect() {
       Serial.print("Retrying ");
       Serial.println(HiveMQ);
       delay(600);
+    }
+  }
+}
+
+void reconnect() {
+  // Loop until we’re reconnected
+  while (!MQTTClient.connected()) {
+    Serial.print("Attempting MQTT connection .. ");
+    String clientID = "FLLTRA";
+    // Attempt to connect
+    // Insert your password
+    if (MQTTClient.connect(clientID.c_str(), HIVE_USERID, HIVE_PASSWD)) {
+      Serial.println("connected");
+      // Once connected, publish an announcement…
+      MQTTClient.publish("FLL/Test", "Namaste FLL!");
+      // … and resubscribe
+      MQTTClient.subscribe("FLL/Test");
+    } else {
+      Serial.print("failed, rc = ");
+      Serial.print(MQTTClient.state());
+      Serial.println(" try again in 5 seconds.");
+      // Wait 5 seconds before retrying
+      delay(5000);
     }
   }
 }
@@ -116,8 +165,9 @@ void setup() {
   Serial.println(WIFI_SSID);
 
   // MQTT:
-  MQTTClient.setServer(HiveMQ, 1883); // MQTT_IP
-  MQTTClient.setCallback(onmessage);
+  HTTPClient.setInsecure();
+  MQTTClient.setServer(HiveMQX, 8883);  // MQTT_IP, 1883 or HiveNQ, 1883
+  MQTTClient.setCallback(onmessage);    
 
   pinMode(LED, OUTPUT);
 }
