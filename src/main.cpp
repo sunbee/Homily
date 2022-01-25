@@ -87,7 +87,7 @@ void reconnect() {
       MQTTClient.subscribe("FLL"); // SUBSCRIBE TO TOPIC
     } else {
       Serial.print("Retrying ");
-      Serial.println(MQTT_IP);
+      Serial.println(HiveMQ);
       delay(600);
     }
   }
@@ -116,7 +116,7 @@ void setup() {
   Serial.println(WIFI_SSID);
 
   // MQTT:
-  MQTTClient.setServer(MQTT_IP, 1883);
+  MQTTClient.setServer(HiveMQ, 1883); // MQTT_IP
   MQTTClient.setCallback(onmessage);
 
   pinMode(LED, OUTPUT);

@@ -11,5 +11,6 @@ rev004: Add deep-sleep to save power.
 revFLL: Refactor for FLL 2022 project with float sensors.
 revFLLv1_0: Use third-party broker.
 
+Note: In revFLLv1_0, switched to MQTT as a managed service from HiveMQ at broker.hivemq.com:1883. Updated SECRETS.
 Note: In rev003, added air-quality sensor (MQ135) and flame sensor.
 Note: In rev002, added pot and ds18b20 "Dallas" temperature sensor.
