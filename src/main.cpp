@@ -9,29 +9,6 @@ String name="FLLTRA";
 
 int LED = 16;
 
-/*
-#include "Pot.h"
-unsigned long TIMER_MIN = 2000;     // 2 seconds MIN
-unsigned long TIMER_MAX = 180000;   // 3 minutes MAX
-Pot _pot = Pot();
-int potval;
-
-#include "Dallas.h"
-Dallas _dallas = Dallas();
-float cels;
-
-#include "Gas.h"
-Gas _gas = Gas();
-bool isgas;
-
-#include "Flame.h"
-Flame _flame = Flame();
-bool isfire;
-
-#include "Buzzer.h"
-Buzzer _buzzer = Buzzer();
-*/
-
 #include "Float.h"
 Float _floodLo = Float(PIN_FLOATA);
 Float _floodMe = Float(PIN_FLOATB);
@@ -65,36 +42,6 @@ void onmessage(char* topic, byte* payload, unsigned int length) {
 }
 
 String make_message() {
-  /*
-  // Pot:
-  potval = _pot.get_pot();
-  char pot2display[7];
-  dtostrf(potval, 4, 0, pot2display);
-
-  // Dallas:isLevelLo
-  cels = _dallas.get_Temp(CELSIUS, true);
-  char temp2display[7];
-  dtostrf((((cels < -99.99) || (cels > 999.99)) ? -99.99 :  cels), 6, 2, temp2display);
-
-  // Gas
-  isgas = !(_gas.get_isgas()); // MQ-135 LO when air-quality bad
-  char gas2display[2];
-  dtostrf((isgas*1.0), 1, 0, gas2display);
-
-  // Fire
-  isfire = !(_flame.get_isflame());
-  char fire2display[2];
-  dtostrf((isfire*1.0), 1, 0, fire2display);
-
-  if (isgas || isfire) {
-    _buzzer.sound_alarm();
-  }
-
-  // Pack up!
-  char readout[66];
-  snprintf(readout, 66, "{\"Name\":\"%6s\",\"Pot\":%6s,\"TempC\":%6s,\"AirQ\":%1s,\"Fire\":%1s}", name.c_str(), pot2display, temp2display, gas2display, fire2display);
-  return readout;
-  */
  // Levels
  isLevelLo = _floodLo.get_isflood();
  isLevelMe = _floodMe.get_isflood();
@@ -171,14 +118,6 @@ void setup() {
   // MQTT:
   MQTTClient.setServer(MQTT_IP, 1883);
   MQTTClient.setCallback(onmessage);
-
-  /*
-  // Dallas:
-  _dallas.start();
-
-  // Buzzer
-  _buzzer.sound_alarm();
-  */
 
   pinMode(LED, OUTPUT);
 }
