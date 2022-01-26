@@ -96,29 +96,6 @@ void publish_message() {
   MQTTClient.publish("FLL", char_buffer);
 }
 
-void reconnect_old() {
-  /*
-  Connect to the MQTT broker in order to publish a message
-  or listen in on a topic of interest. 
-  The 'connect()' method requires client credentials. 
-  When the MQTT broker is not setup for authentication, 
-  we have successfully connected to the MQTT broker 
-  passing string literals for args 'id' and 'user' and NULL for 'pass'.
-  Having connected successully, proceed to publish or listen.
-  Example: "BHRIGU", "fire_up_your_neurons", NULL
-  */
-  while (!MQTTClient.connected()) {
-    if (MQTTClient.connect("FLLTRA", MQTT_USERID, MQTT_PASSWD)) {
-      Serial.println("Uh-Kay!");
-      MQTTClient.subscribe("FLL"); // SUBSCRIBE TO TOPIC
-    } else {
-      Serial.print("Retrying ");
-      Serial.println(HiveMQ);
-      delay(600);
-    }
-  }
-}
-
 void reconnect() {
   // Loop until we’re reconnected
   while (!MQTTClient.connected()) {
